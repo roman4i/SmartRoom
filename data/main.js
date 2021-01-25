@@ -77,7 +77,7 @@ function createBigCont(){
     bigDragCont.id = "bigTarget";
     bigDragCont.classList = "bigContainer";
 
-    bigDragCont.onmouseup = () => {
+    bigDragCont.onmouseup = function (){
         if((buferDD[0] != null) && (buferDD[0] != buferDD[1])){
             if(document.getElementById("bigTarget") != null){
                 document.getElementById("bigTarget").remove();
@@ -89,6 +89,8 @@ function createBigCont(){
             smCont.onmousedown = null;
             console.log(smCont.childNodes[2]);
             smCont.childNodes[2].onchange = null;
+            smCont.ontouchstart = null;
+            smCont.ontouchmove = bigDragCont.ontouchmove;
             if(document.getElementById("range"+buferDD[0]) != null){
                 smCont.childNodes[2].onchange = () =>{
                     console.log(buferDD);
@@ -100,9 +102,11 @@ function createBigCont(){
             }
             console.log(smCont.childNodes[3].innerText);
             document.getElementById("head").after(smCont);
+            console.log("Mouse Up");
             buferDD[1] = buferDD[0];
         }
     }
+    bigDragCont.ontouchmove = bigDragCont.onmouseup;
     return bigDragCont;
 }
 
@@ -141,9 +145,11 @@ function addPWMContainer(contNum, targetObj, modCont){
     modCont.appendChild(powerLevel);
     modCont.appendChild(sendBtn); 
 
-    modCont.onmousedown = () => {
+    modCont.onmousedown = function(){
         buferDD[0] = contNum;
+        console.log("Mouse down");
     }
+    modCont.ontouchstart = modCont.onmousedown;
     return modCont;
 }
 
@@ -151,7 +157,7 @@ function addSensorContainer(contNum, targetObj, modCont){
 
     let sensorOutVal = document.createElement("div");
     sensorOutVal.id = "sensor"+contNum+"txt";
-    sensorOutVal.innerText = targetObj.sensorFunction();
+    targetObj.sensorFunction();
 
     modCont.appendChild(sensorOutVal);
 
@@ -163,7 +169,7 @@ function bmp180(){
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
           if (this.readyState == 4 && this.status == 200) {
-            document.getElementById("temperature").innerHTML = this.responseText;
+            document.getElementById("sensor2txt").innerHTML = this.responseText;
           }
         };
         xhttp.open("GET", "/temperature", true);
