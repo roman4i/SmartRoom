@@ -11,8 +11,8 @@ Adafruit_BMP085 tSens;
 
 
 // Replace with your network credentials
-const char* ssid = "R_Net";
-const char* password = "way2net8";
+const char* ssid = "your_network";
+const char* password = "pass";
 
 const char* PARAM_INPUT_1 = "output";
 const char* PARAM_INPUT_2 = "state";
