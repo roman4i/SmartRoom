@@ -1,0 +1,45 @@
+.header{
+    font-size: 42px;
+    font-family: 'Times New Roman', Times, serif;
+    text-align: center;
+    border-bottom: brown double;
+}
+
+.bigContainer{
+    margin: 20px;
+    padding: 10px;
+    border: solid 3px brown;
+    border-radius: 30px;
+    text-align: center;
+}
+
+.unselectable{
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.mainCont{
+    display:flex;
+    justify-content: space-around;
+    padding-top: 20px;
+    flex-wrap: wrap;
+}
+
+.cont{
+    border: 2px solid black;
+    border-radius: 10%;
+    text-align: center;
+    padding: 5px;
+    background-color: white;
+    margin:15px;
+}
+
+.contHead{
+    display: flex;
+    justify-content: space-between;
+}
+
+.delCont{
+    border: red solid 1px;
+}
