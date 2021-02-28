@@ -1,190 +1,162 @@
-let buferDD = [];
-let containers = [];
+const dataStorage = [['pwm', 'LED1'], ['pwm', 'Led2'], ['pwm', 'Led3'], ['sensor', 'BMP180'], ['sensor', 'Humidity'], ['binary', 'PSU']];
+const dataOut = [];
+let lastIdCreate = 0;
 
-function addContainers(){
-    let header = document.createElement("div");
-    header.classList = "header";
-    header.innerText = "Smart Room Control";
-    header.id = "head";
-
-    document.body.append(header);
-    document.body.append(createBigCont());
-
-    let mainContainer = document.createElement("div");
-    mainContainer.classList = "mainCont";
-    mainContainer.id = "mainContainer";
-    document.body.append(mainContainer);
-
-    containers[0] = {
-        type: "pwm", name: "LED1", pin: 13, valuePWM: 0
-    };
-    containers[1] = {
-        type: "pwm", name: "LED2", pin: 12, valuePWM: 0
-    };
-    containers[2] = {
-        type: "sensor", name: "BMP180", sensorFunction: bmp180
-    };
-    containers[3] = {
-        type: "binary", name: "PSU", pin: 14, valueBin: 0
-    };
-
-    for(let key in containers){
-       document.getElementById("mainContainer").append(addSingleContainer(containers[key], key));
-    };
+function minimizeContBtn(targetObj, head) {
+  const minBtn = document.createElement('div');
+  minBtn.classList = 'minButton';
+  minBtn.innerText = 'X';
+  head.append(minBtn);
 }
 
-function addSingleContainer(contObj, contPos){
-    //creating of new container
-    let contDiv = document.createElement("div");
-    contDiv.id = "cont" + contPos;
-    contDiv.classList = "cont unselectable";
-
-    //div head container
-    let contHead = document.createElement("div");
-    contHead.classList = "contHead";
-
-    //div for container name
-    let contName = document.createElement("div");
-    contName.id = "ctName" + contPos;
-    contName.innerText= contObj.type + " " + contObj.name;
-    
-    //div for X "button"
-    let delHeadDiv = document.createElement("div");
-    delHeadDiv.innerText = "X";
-    delHeadDiv.classList = "delCont";
-
-    contDiv.append(contHead);
-    contHead.append(contName);
-    contHead.append(delHeadDiv);
-    contDiv.append(document.createElement("br"));
-
-    if(contObj.type == "pwm"){
-        contDiv = addPWMContainer(contPos, contObj, contDiv);
-    }
-    if(contObj.type == "sensor")
+function valueContCreate(targetObj, contType, contId) {
+  switch (contType) {
+    case 'pwm':
     {
-        contDiv = addSensorContainer(contPos, contObj, contDiv);
+      const pwmValue = document.createElement('div');
+      pwmValue.classList = 'valueFont';
+      pwmValue.innerText = dataOut[contId].value;
+      targetObj.append(pwmValue);
+
+      const pwmSlider = document.createElement('input');
+      pwmSlider.type = 'range';
+      pwmSlider.min = '0';
+      pwmSlider.max = '100';
+      pwmSlider.value = dataOut[contId].value;
+      pwmSlider.onchange = () => {
+        pwmValue.innerText = pwmSlider.value;
+        dataOut[contId].value = pwmSlider.value;
+      };
+      targetObj.append(pwmSlider);
+      break;
     }
-     if(contObj.type == "binary"){
-         contDiv = addBinaryContainer(contPos, contObj, contDiv);
-     }
-
-    return contDiv;
-}
-
-function createBigCont(){
-    let bigDragCont = document.createElement("div");
-    bigDragCont.id = "bigTarget";
-    bigDragCont.classList = "bigContainer";
-
-    bigDragCont.onmouseup = () => {
-        if((buferDD[0] != null) && (buferDD[0] != buferDD[1])){
-            if(document.getElementById("bigTarget") != null){
-                document.getElementById("bigTarget").remove();
-            }
-            let smCont = addSingleContainer(containers[buferDD[0]], "Big");
-            smCont.classList = "bigContainer unselectable";
-            smCont.id = "bigTarget";
-            smCont.onmouseup = bigDragCont.onmouseup;
-            smCont.onmousedown = null;
-            console.log(smCont.childNodes[2]);
-            smCont.childNodes[2].onchange = null;
-            if(document.getElementById("range"+buferDD[0]) != null){
-                smCont.childNodes[2].onchange = () =>{
-                    console.log(buferDD);
-                    document.getElementById("range"+buferDD[0]).value = smCont.childNodes[2].value;
-                    smCont.childNodes[3].innerText = "Value: " + smCont.childNodes[2].value;
-                    document.getElementById("range"+buferDD[0]+"txt").innerText = "Value: " + smCont.childNodes[2].value;
-                    console.log(smCont.childNodes[3].innerText);
-                }
-            }
-            console.log(smCont.childNodes[3].innerText);
-            document.getElementById("head").after(smCont);
-            buferDD[1] = buferDD[0];
+    case 'sensor':
+    {
+      const valueCont = document.createElement('div');
+      valueCont.classList = 'valueFont';
+      valueCont.innerText = '20';
+      targetObj.append(valueCont);
+      break;
+    }
+    case 'binary':
+    {
+      const check = document.createElement('input');
+      check.type = 'checkbox';
+      check.classList = 'valueFont';
+      check.onchange = () => {
+        if (check.value) {
+          dataOut[contId].value = true;
+          // add request function
+        } else {
+          dataOut[contId].value = false;
         }
-    }
-    return bigDragCont;
-}
-
-function addPWMContainer(contNum, targetObj, modCont){
-
-    //input with range
-    let powerRange = document.createElement("input");
-    powerRange.id = "range" + contNum;
-    powerRange.type = "range";
-    powerRange.min = "0";
-    powerRange.max = "1023";
-    powerRange.value = targetObj.valuePWM;
-    powerRange.onchange = function(){
-        let textVal = document.getElementById("range" + contNum + "txt");
-        textVal.textContent = "Value: " + document.getElementById(powerRange.id).value;
-        targetObj.valuePWM = document.getElementById(powerRange.id).value;
-    };
-
-    //div with numbers from range
-    let powerLevel = document.createElement("div");
-    powerLevel.id = "range" + contNum + "txt";
-    powerLevel.innerText = "Value: " + targetObj.valuePWM;
-
-    //button for sending parameters
-    let sendBtn = document.createElement("input");
-    sendBtn.id = "cont" + contNum + "btn";
-    sendBtn.type = "button";
-    sendBtn.value = "Send";
-    sendBtn.onclick = function (){
-        let xhr = new XMLHttpRequest();
-        xhr.open("GET", "/pwm?" + targetObj.name + "=" + powerRange.value, true);
-        xhr.send();
+      };
+      targetObj.append(check);
+      break;
     }
 
-    modCont.appendChild(powerRange);
-    modCont.appendChild(powerLevel);
-    modCont.appendChild(sendBtn); 
-
-    modCont.onmousedown = () => {
-        buferDD[0] = contNum;
-    }
-    return modCont;
+    default:
+      break;
+  }
 }
 
-function addSensorContainer(contNum, targetObj, modCont){
+// container generation
+function generateContainer(mainCont, contType, contId) {
+  const elemntCont = document.createElement('div');
+  elemntCont.classList = 'contBody';
+  elemntCont.id = contId;
+  mainCont.append(elemntCont);
 
-    let sensorOutVal = document.createElement("div");
-    sensorOutVal.id = "sensor"+contNum+"txt";
-    sensorOutVal.innerText = targetObj.sensorFunction();
+  elemntCont.addEventListener('click', (event) => {
+    console.log(event.target);
+    const targetCont = event.target;
+    if (targetCont.classList.value === 'minButton') {
+      elemntCont.classList = 'contBody minimizedCont';
+      for (let i = 0; i < elemntCont.children.length; i += 1) {
+        switch (i) {
+          case 0:
+            elemntCont.children[i].children[1].hidden = true;
+            elemntCont.children[i].classList = 'minHead';
+            break;
+          case 1:
+            elemntCont.children[i].classList = 'minValues';
+            break;
 
-    modCont.appendChild(sensorOutVal);
-
-    return modCont;
-}
-
-function bmp180(){
-    setInterval(function ( ) {
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200) {
-            document.getElementById("temperature").innerHTML = this.responseText;
+          default:
+            elemntCont.children[i].hidden = true;
+            break;
+        }
+      }
+      dataOut.forEach((element, index) => {
+        if (element.id === contId) {
+          dataOut[index].hide = true;
+        }
+      });
+    } else {
+      dataOut.forEach((element, index) => {
+        if (element.hide === true && element.id === contId) {
+          elemntCont.classList = 'contBody';
+          for (let i = 0; i < elemntCont.children.length; i += 1) {
+            switch (i) {
+              case 0:
+                elemntCont.children[i].children[1].hidden = false;
+                elemntCont.children[i].classList = 'contHead';
+                break;
+              case 1:
+                elemntCont.children[i].classList = 'valueFont';
+                break;
+              default:
+                elemntCont.children[i].hidden = false;
+                break;
+            }
           }
-        };
-        xhttp.open("GET", "/temperature", true);
-        xhttp.send();
-      }, 10000) ;
-}
-
-function addBinaryContainer(contNum, targetObj, modCont){
-    
-    let outCheck = document.createElement("input");
-    outCheck.id = "chk" + contNum;
-    outCheck.type = "checkbox";
-
-    outCheck.onchange = function () {
-        let xhr = new XMLHttpRequest();
-        if(outCheck.checked){ xhr.open("GET", "/update?output="+targetObj.pin+"&state=0", true); }
-        else { xhr.open("GET", "/update?output="+targetObj.pin+"&state=1", true); }
-        xhr.send();
+          dataOut[index].hide = false;
+        }
+      });
     }
+  });
 
-    modCont.appendChild(outCheck);
+  const headBlock = document.createElement('div');
+  headBlock.classList = 'contHead';
+  elemntCont.append(headBlock);
 
-    return modCont;
+  const textHead = document.createElement('div');
+  textHead.classList = 'textHead';
+  textHead.innerText = dataOut[contId].name;
+  headBlock.append(textHead);
+
+  minimizeContBtn(elemntCont, headBlock);
+
+  valueContCreate(elemntCont, contType, contId);
 }
+
+// init data to dataOut
+function initContData(arrNum, id, type, name) {
+  dataOut[arrNum] = {
+    id,
+    type,
+    name,
+    value: '0',
+    hide: false,
+  };
+  generateContainer(document.getElementById('mainCont'), type, id);
+}
+
+// init function
+function initCode() {
+  const header = document.createElement('div');
+  header.classList = 'header';
+  header.innerHTML = 'Just control for your room';
+  document.getElementById('root').append(header);
+
+  const contsDiv = document.createElement('div');
+  contsDiv.classList = 'mainContainer';
+  contsDiv.id = 'mainCont';
+  document.getElementById('root').append(contsDiv);
+  dataStorage.forEach((item, index) => {
+    initContData(index, lastIdCreate, item[0], item[1]);
+    lastIdCreate += 1;
+  });
+}
+
+initCode();
