@@ -3,16 +3,16 @@
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <Adafruit_Sensor.h>
-#include <Adafruit_BMP085.h>
+#include <Adafruit_BME280.h>
 #include <SPI.h>
 #include "LittleFS.h"
 
-Adafruit_BMP085 tSens;
+Adafruit_BME280 tSens;
 
 
 // Replace with your network credentials
 const char* ssid = "your_network";
-const char* password = "pass";
+const char* password = "password";
 
 const char* PARAM_INPUT_1 = "output";
 const char* PARAM_INPUT_2 = "state";
@@ -27,6 +27,14 @@ int getTemp(){
   return tSens.readTemperature();
 }
 
+int getHumidity(){
+  return tSens.readHumidity();
+}
+
+double getPressure(){
+  return tSens.readPressure() * 0.0075;
+}
+
 void setLEDPower(int stripNum, int levelPWM){
   analogWrite(stripNum, levelPWM);
 }
@@ -35,8 +43,8 @@ void setup(){
   // Serial port for debugging purposes
   Serial.begin(9600);
   
-  if (!tSens.begin()) {
-    Serial.println("Could not find a valid BMP185 sensor, check wiring!");
+  if (!tSens.begin(0x76, &Wire)) {
+    Serial.println("Could not find a valid BME280 sensor, check wiring!");
     while (1) {}
   }
 
