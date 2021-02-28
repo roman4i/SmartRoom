@@ -1,45 +1,104 @@
-.header{
-    font-size: 42px;
-    font-family: 'Times New Roman', Times, serif;
-    text-align: center;
-    border-bottom: brown double;
+.header {
+  text-align: center;
+  margin-top: 50px;
+  font-size: 60px;
 }
 
-.bigContainer{
-    margin: 20px;
-    padding: 10px;
-    border: solid 3px brown;
-    border-radius: 30px;
-    text-align: center;
-}
-
-.unselectable{
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-}
-
-.mainCont{
-    display:flex;
+.mainContainer{
+    display: flex;
     justify-content: space-around;
-    padding-top: 20px;
+    margin-top: 50px;
+    align-items: center;
     flex-wrap: wrap;
 }
 
-.cont{
-    border: 2px solid black;
-    border-radius: 10%;
+.contBody{
+  margin-bottom: 40px;
+    border: solid brown 3px;
+    width: 250px;
     text-align: center;
-    padding: 5px;
-    background-color: white;
-    margin:15px;
+    height: min-content;
+    padding: 12px;
+    border-radius: 8px;
 }
 
 .contHead{
     display: flex;
     justify-content: space-between;
+    padding: 3px;
 }
 
-.delCont{
-    border: red solid 1px;
+.textHead {
+  font-size: x-large;
+}
+
+.minButton{
+  font-size: x-large;
+}
+
+.valueFont{
+    font-size: x-large;
+    margin-bottom: 14px;
+}
+
+.minimizedCont{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 30px;
+}
+
+.minValues {
+  font-size: x-large;
+}
+
+input[type=range] {
+  width: 90%;
+}
+
+@media screen and (orientation: portrait) {
+  .mainContainer {
+    display: block;
+    margin-top: 100px;
+  }
+
+  .contBody {
+    margin-bottom: 200px;
+    width: 30vw;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 2vw;
+    transform: scale(2);
+  }
+
+  .valueFont {
+    font-size: xx-large;
+  }
+
+  input[type=range] {
+    transform: scale(2);
+    width: 50%;
+  }
+
+  .contHead {
+    font-size: xx-large;
+  }
+
+  input[type=checkbox] {
+    transform: scale(2);
+  }
+
+  .minimizedCont {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .minHead {
+    font-size: xx-large;
+  }
+
+  .minValues {
+    font-size: xx-large;
+  }
 }
